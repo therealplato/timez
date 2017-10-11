@@ -1,5 +1,6 @@
 package main
 
+// Doc documents behavior
 const Doc = `
 timez is a cli tool for converting time between timezones
 
