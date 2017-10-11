@@ -7,15 +7,18 @@ import (
 	"time"
 )
 
+// ErrParse indicates the cli arguments were bad
 var ErrParse = errors.New("could not parse inputs")
 
 func main() {
+	c := &mockClock{}
+	z := &mockZone{}
 	fmt.Println(
-		timez(os.Args),
+		timez(c, z, os.Args),
 	)
 }
 
-func timez(args []string) string {
+func timez(c clocker, z zoner, args []string) string {
 	from, time, to, err := parse(args)
 	if err != nil {
 		return Usage
