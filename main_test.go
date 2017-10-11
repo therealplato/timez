@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"strings"
 	"testing"
 	"time"
@@ -34,7 +33,12 @@ func TestTimez(t *testing.T) {
 UTC: 2017-10-10 10:01:30
 `,
 		},
-		testcase{"one tz", "PT", `US/Pacific: 2017-10-10 02:01:30
+		testcase{"one tz", "PT", `US/Pacific: 2017-10-10 03:01:30
+`,
+		},
+		testcase{"three tz", "PT Pacific/Auckland UTC", `US/Pacific: 2017-10-10 03:01:30
+Pacific/Auckland: 2017-10-10 23:01:30
+UTC: 2017-10-10 10:01:30
 `,
 		},
 	}
@@ -44,7 +48,6 @@ UTC: 2017-10-10 10:01:30
 			if len(args) == 1 && args[0] == "" {
 				args = nil
 			}
-			log.Printf("%q\n", args)
 			out := timez(c, z, args)
 			assert.Equal(t, tc.expected, out)
 		})
