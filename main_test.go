@@ -34,6 +34,9 @@ func TestTimez(t *testing.T) {
 UTC: 2017-10-10 10:01:30
 `,
 		},
+		testcase{"one tz", "PT", `US/Pacific: 2017-10-10 02:01:30
+`,
+		},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {

@@ -11,6 +11,9 @@ import (
 // ErrParse indicates the cli arguments were bad
 var ErrParse = errors.New("could not parse inputs")
 
+// ErrNoArgs is just for switching
+var ErrNoArgs = errors.New("semaphore for default handling")
+
 var nullTime = time.Time{}
 
 func main() {
@@ -24,22 +27,29 @@ func main() {
 }
 
 func timez(c clocker, z zoner, args []string) string {
-	from, t0, to, err := parse(c, z, args)
+	outputTZs, t0, inputTZ, err := parse(args)
+	_ = inputTZ
 	if err != nil {
-		return Usage
+		if err == ErrNoArgs {
+			outputTZs = append(outputTZs, z.Zone(), time.UTC)
+			t0 = c.Now()
+			inputTZ = time.UTC
+		} else {
+			return Usage
+		}
 	}
-	t1s := t0.In(from).Format("2006-01-02 15:04:05")
-	t2s := t0.In(to).Format("2006-01-02 15:04:05")
+	output := ""
+	for _, tz := range outputTZs {
+		s := t0.In(tz).Format("2006-01-02 15:04:05")
+		output += fmt.Sprintf("%s: %s\n", tz.String(), s)
+	}
+	return output
 
-	return fmt.Sprintf("%s: %s\n%s: %s\n", from.String(), t1s, to.String(), t2s)
 }
 
-func parse(c clocker, z zoner, args []string) (from *time.Location, t time.Time, to *time.Location, err error) {
+func parse(args []string) (outputTZ []*time.Location, t time.Time, inputTZ *time.Location, err error) {
 	if len(args) == 0 {
-		t0 := c.Now()
-		z0 := z.Zone()
-		z1 := time.UTC
-		return z0, t0, z1, nil
+		return nil, time.Time{}, nil, ErrNoArgs
 	}
 
 	var (
