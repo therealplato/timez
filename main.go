@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -40,5 +41,36 @@ func parse(c clocker, z zoner, args []string) (from *time.Location, t time.Time,
 		z1 := time.UTC
 		return z0, t0, z1, nil
 	}
+
+	var (
+		// leftZones are timezone strings positioned before any timestamps
+		leftZones []string
+		// frags are number-containing strings that should be fragments of a timestamp
+		frags []string
+		//rightZones are timezone strings positioned after any timestamps
+		rightZones []string
+		zoneRX     = regexp.MustCompile(`^[a-zA-Z+\-]`)
+		fragRX     = regexp.MustCompile("^[0-9]")
+	)
+
+	for _, arg := range args {
+		isFrag := fragRX.MatchString(arg)
+		if isFrag {
+			frags = append(frags, arg)
+		}
+		isZone := zoneRX.MatchString(arg)
+		if isZone {
+			if len(frags) == 0 {
+				leftZones = append(leftZones, arg)
+				continue
+			}
+			rightZones = append(rightZones, arg)
+		}
+	}
+	fmt.Println("Parse results:")
+	fmt.Println(leftZones)
+	fmt.Println(frags)
+	fmt.Println(rightZones)
+
 	return nil, time.Time{}, nil, ErrParse
 }
