@@ -1,6 +1,12 @@
 package main
 
 import (
+	"errors"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -12,12 +18,37 @@ type zoner interface {
 
 type zone struct{}
 
-func (z *zone) Zone() *time.Location {
-	z0, err := time.LoadLocation("Pacific/Auckland")
+func tzFromRC() (*time.Location, error) {
+	dir := userHomeDir()
+	rc := filepath.Join(dir, ".timezrc")
+	bb, err := ioutil.ReadFile(rc)
 	if err != nil {
-		return time.UTC
+		return nil, err
 	}
-	return z0
+	s := string(bb)
+	lines := strings.Split(s, "\n")
+	for _, l := range lines {
+		loc, err := parseZone(l)
+		if err == nil {
+			return loc, nil
+		}
+	}
+	return nil, errors.New("~/.timezrc had no parsable timezones")
+}
+func tzFromShell() (*time.Location, error) {
+	return nil, errors.New("unimplemented")
+}
+
+func (z *zone) Zone() *time.Location {
+	loc, err := tzFromRC()
+	if err == nil {
+		return loc
+	}
+	loc, err = tzFromShell()
+	if err == nil {
+		return loc
+	}
+	return time.UTC
 }
 
 type mockZone struct {
@@ -31,4 +62,15 @@ func (z *mockZone) Zone() *time.Location {
 		return time.UTC
 	}
 	return z0
+}
+
+// https://stackoverflow.com/a/41786440
+func userHomeDir() string {
+	env := "HOME"
+	if runtime.GOOS == "windows" {
+		env = "USERPROFILE"
+	} else if runtime.GOOS == "plan9" {
+		env = "home"
+	}
+	return os.Getenv(env)
 }
