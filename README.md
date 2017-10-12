@@ -6,11 +6,18 @@ a cli tool for converting time between timezones
 
 ### Usage:
 ```
+go get -u github.com/therealplato/timez
 timez <outputTZ...> <timestamp> <inputTZ>
 ```
-NB: If inputTZ is not provided, timez currently assumes local timezone is Pacific/Auckland
 
-### Done:
+If inputTZ is not provided, timez takes the first available of:
+- the contents of `~/.timezrc`
+- the output of `date +%z`
+- UTC
+
+### Details:
+`alias.go` contains a mapping from abbreviations I use to their authoritative zoneinfo string. Feel free to PR new entries to this list.
+
 ```
 # output current local and current UTC:
 timez 
@@ -30,11 +37,6 @@ timez PT 2017-10-11 19:05:00 ET
 
 ### Todo:
 ```
-guess local timezone, from highest priority to lowest priority:
-- the contents of ~/.timezrc
-- the output of date +%z
-- UTC
-
 # handle numeric timezones
 timez PT 2017-10-11 19:05:00 +0400
 
