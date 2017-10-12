@@ -26,7 +26,7 @@ func main() {
 }
 
 func timez(c clocker, z zoner, args []string) string {
-	outputTZs, t0, inputTZ, err := parse(args)
+	outputTZs, t0, inputTZ, err := parse(z, args)
 	_ = inputTZ
 	if err != nil {
 		if err == ErrNoArgs {
@@ -34,6 +34,7 @@ func timez(c clocker, z zoner, args []string) string {
 			t0 = c.Now()
 			inputTZ = time.UTC
 		} else {
+			fmt.Println(err)
 			return Usage
 		}
 	}

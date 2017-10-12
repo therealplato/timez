@@ -29,16 +29,19 @@ func TestTimez(t *testing.T) {
 
 	tcs := []testcase{
 		testcase{"junk input", "asdf", Usage},
-		testcase{"empty input", "", `Pacific/Auckland: 2017-10-10 23:01:30
+		testcase{"empty input outputs local and utc", "", `Pacific/Auckland: 2017-10-10 23:01:30
 UTC: 2017-10-10 10:01:30
 `,
 		},
-		testcase{"one tz", "PT", `US/Pacific: 2017-10-10 03:01:30
+		testcase{"one tz outputs now in that tz", "PT", `US/Pacific: 2017-10-10 03:01:30
 `,
 		},
-		testcase{"three tz", "PT Pacific/Auckland UTC", `US/Pacific: 2017-10-10 03:01:30
+		testcase{"three tz outputs now in those tz", "PT Pacific/Auckland UTC", `US/Pacific: 2017-10-10 03:01:30
 Pacific/Auckland: 2017-10-10 23:01:30
 UTC: 2017-10-10 10:01:30
+`,
+		},
+		testcase{"one tz and a timestamp without zone, outputs  that local time converted to that zone", "PT 2017-10-10 23:45:00", `US/Pacific: 2017-10-10 03:45:00
 `,
 		},
 	}
