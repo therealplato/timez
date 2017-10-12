@@ -28,7 +28,7 @@ func TestTimez(t *testing.T) {
 	c.On("Now").Return(t0)
 
 	tcs := []testcase{
-		testcase{"junk input", "asdf", Usage},
+		testcase{"junk input", "asdf", usage},
 		testcase{"empty input outputs local and utc", "", `Pacific/Auckland: 2017-10-10 23:01:30
 UTC: 2017-10-10 10:01:30`,
 		},

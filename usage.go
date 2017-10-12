@@ -1,6 +1,4 @@
 package main
 
-//Usage notes
-const Usage = `Displays times in local and other timezones.
-timez <outputTZ...> <time> <inputTZ>
+const usage = `timez <outputTZ...> <time> <inputTZ>
 `

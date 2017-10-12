@@ -14,14 +14,15 @@ var (
 	errParsingTimestamp = errors.New("found numbers that did not match a known timestamp format")
 )
 
-func parse(z zoner, args []string) (outputZones []*time.Location, t time.Time, inputZone *time.Location, err error) {
+func parse(z zoner, args []string) (outputZones []*time.Location, t time.Time, err error) {
 	t = nullTime
-	inputZone = z.Zone()
 	var (
-		tmpZone *time.Location
+		inputZone *time.Location
+		tmpZone   *time.Location
 	)
+	inputZone = z.Zone()
 	if len(args) == 0 {
-		return outputZones, t, inputZone, ErrNoArgs
+		return outputZones, t, errNoArgs
 	}
 
 	outputZoneStrings, timeFrags, inputZoneString := parseToStrings(args)
@@ -29,14 +30,14 @@ func parse(z zoner, args []string) (outputZones []*time.Location, t time.Time, i
 	if inputZoneString != "" {
 		inputZone, err = parseZone(inputZoneString)
 		if err != nil {
-			return outputZones, t, inputZone, err
+			return outputZones, t, err
 		}
 	}
 
 	for _, tzString := range outputZoneStrings {
 		tmpZone, err = parseZone(tzString)
 		if err != nil {
-			return outputZones, t, inputZone, err
+			return outputZones, t, err
 		}
 		outputZones = append(outputZones, tmpZone)
 	}
@@ -51,7 +52,7 @@ func parse(z zoner, args []string) (outputZones []*time.Location, t time.Time, i
 		}
 	}
 
-	return outputZones, t, inputZone, err
+	return outputZones, t, err
 }
 
 func parseToStrings(args []string) (outputZoneStrings []string, timeFrags []string, inputZoneString string) {

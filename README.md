@@ -11,14 +11,15 @@ timez <outputTZ...> <timestamp> <inputTZ>
 ```
 If `timestamp` is not provided, timez assumes now.
 
-If outputTZ or inputTZ are not provided, timez uses the first available of:
+If `outputTZ` or `inputTZ` are not provided, timez uses the first available of:
 - the contents of `~/.timezrc`
 - the output of `date +%z`
 - UTC
 
 
 ## Contributing:
-`alias.go` contains a mapping from abbreviations I use to their authoritative zoneinfo string.
+`alias.go` contains a mapping from abbreviations like "auckland, ET" to authoritative zoneinfo strings "Pacific/Auckland", "US/Eastern"
+(which itself links to "America/New_York")
 
 `formats.go` contains a slice of format strings. Parsing will try each format in order.
 

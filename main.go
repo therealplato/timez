@@ -8,11 +8,9 @@ import (
 	"time"
 )
 
-// ErrParse indicates the cli arguments were bad
-var ErrParse = errors.New("could not parse inputs")
+var errParse = errors.New("could not parse inputs")
 
-// ErrNoArgs is just for switching
-var ErrNoArgs = errors.New("semaphore for default handling")
+var errNoArgs = errors.New("semaphore for default handling")
 
 var nullTime = time.Time{}
 
@@ -21,22 +19,18 @@ func main() {
 	z := &zone{}
 	args := make([]string, len(os.Args)-1)
 	args = os.Args[1:]
-	fmt.Println(
-		timez(c, z, args),
-	)
+	fmt.Println(timez(c, z, args))
 }
 
 func timez(c clocker, z zoner, args []string) string {
-	outputTZs, t0, inputTZ, err := parse(z, args)
-	_ = inputTZ
+	outputTZs, t0, err := parse(z, args)
 	if err != nil {
-		if err == ErrNoArgs {
+		if err == errNoArgs {
 			outputTZs = append(outputTZs, z.Zone(), time.UTC)
 			t0 = c.Now()
-			inputTZ = time.UTC
 		} else {
 			fmt.Println(err)
-			return Usage
+			return usage
 		}
 	}
 	if t0 == nullTime {
@@ -52,5 +46,4 @@ func timez(c clocker, z zoner, args []string) string {
 	}
 	output = strings.TrimRight(output, "\n")
 	return output
-
 }
