@@ -42,6 +42,9 @@ func timez(c clocker, z zoner, args []string) string {
 		t0 = c.Now()
 	}
 	output := ""
+	if len(outputTZs) == 0 {
+		outputTZs = append(outputTZs, z.Zone())
+	}
 	for _, tz := range outputTZs {
 		s := t0.In(tz).Format("2006-01-02 15:04:05")
 		output += fmt.Sprintf("%s: %s\n", tz.String(), s)

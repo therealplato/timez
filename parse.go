@@ -45,6 +45,9 @@ func parse(z zoner, args []string) (outputZones []*time.Location, t time.Time, i
 	)
 
 	for _, arg := range args {
+		if arg == "at" || arg == "in" || arg == "from" || arg == "to" {
+			continue
+		}
 		isFrag := fragRX.MatchString(arg)
 		if isFrag {
 			frags = append(frags, arg)
