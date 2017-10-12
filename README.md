@@ -9,15 +9,22 @@ a cli tool for converting time between timezones
 go get -u github.com/therealplato/timez
 timez <outputTZ...> <timestamp> <inputTZ>
 ```
+If `timestamp` is not provided, timez assumes now.
 
 If outputTZ or inputTZ are not provided, timez uses the first available of:
 - the contents of `~/.timezrc`
 - the output of `date +%z`
 - UTC
 
-### Details:
-`alias.go` contains a mapping from abbreviations I use to their authoritative zoneinfo string. Feel free to PR new entries to this list.
 
+## Contributing:
+`alias.go` contains a mapping from abbreviations I use to their authoritative zoneinfo string.
+
+`formats.go` contains a slice of format strings. Parsing will try each format in order.
+
+Feel free to PR new entries to these lists, what I've got so far is specific to my usecases.
+
+## Examples:
 ```
 # output current local and current UTC:
 $ timez

@@ -9,18 +9,6 @@ import (
 )
 
 var (
-	tsFormats = []string{
-		"2006-01-02 15:04:05",
-		"2006-01-02 15:04:05 -0700",
-		time.RFC1123,
-		time.RFC1123Z,
-		time.RFC3339,
-		time.RFC3339Nano,
-		time.RFC822,
-		time.RFC822Z,
-		time.RFC850,
-		time.ANSIC,
-	}
 	zoneRX              = regexp.MustCompile(`^[a-zA-Z+\-]`)
 	fragRX              = regexp.MustCompile("^[0-9]")
 	errParsingTimestamp = errors.New("found numbers that did not match a known timestamp format")
