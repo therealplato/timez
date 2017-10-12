@@ -35,7 +35,6 @@ $ timez ET UTC
 US/Eastern: 2017-10-12 05:31:07
 UTC: 2017-10-12 09:31:07
 
-
 # given Pacific time, what is local time:
 $ timez 2017-10-11 19:05:00 US/Pacific
 Pacific/Auckland: 2017-10-12 15:05:00
