@@ -28,20 +28,47 @@ func TestTimez(t *testing.T) {
 	c.On("Now").Return(t0)
 
 	tcs := []testcase{
-		testcase{"junk input", "asdf", usage},
-		testcase{"empty input outputs local and utc", "", `Pacific/Auckland: 2017-10-10 23:01:30
-UTC: 2017-10-10 10:01:30`,
+		testcase{
+			name:     "junk input",
+			input:    "asdf",
+			expected: usage,
 		},
-		testcase{"one tz outputs now in that tz", "PT", `US/Pacific: 2017-10-10 03:01:30`},
-		testcase{"three tz outputs now in those tz", "PT Pacific/Auckland UTC", `US/Pacific: 2017-10-10 03:01:30
+		testcase{
+			name:  "empty input outputs local and utc",
+			input: "",
+			expected: `Pacific/Auckland: 2017-10-10 23:01:30
+UTC: 2017-10-10 10:01:30`},
+		testcase{
+			name:     "one tz outputs now in that tz",
+			input:    "PT",
+			expected: `US/Pacific: 2017-10-10 03:01:30`,
+		},
+		testcase{
+			name:  "three tz outputs now in those tz",
+			input: "PT Pacific/Auckland UTC",
+			expected: `US/Pacific: 2017-10-10 03:01:30
 Pacific/Auckland: 2017-10-10 23:01:30
-UTC: 2017-10-10 10:01:30`,
+UTC: 2017-10-10 10:01:30`},
+		testcase{
+			name:     "one tz and a timestamp without zone, outputs that local time converted to that zone",
+			input:    "PT 2017-10-10 23:45:00",
+			expected: `US/Pacific: 2017-10-10 03:45:00`,
 		},
-		testcase{"one tz and a timestamp without zone, outputs that local time converted to that zone", "PT 2017-10-10 23:45:00", `US/Pacific: 2017-10-10 03:45:00`},
-		testcase{"multiple tz and a timestamp without zone, outputs local time converted to those zones", "PT ET 2017-10-10 23:45:00", `US/Pacific: 2017-10-10 03:45:00
+		testcase{
+			name:  "multiple tz and a timestamp without zone, outputs local time converted to those zones",
+			input: "PT ET 2017-10-10 23:45:00",
+			expected: `US/Pacific: 2017-10-10 03:45:00
 US/Eastern: 2017-10-10 06:45:00`},
-		testcase{"one tz and a timestamp and zone, converts second zone to first", "PT 2017-10-10 23:45:00 UTC", `US/Pacific: 2017-10-10 16:45:00`},
-		testcase{"`at in from to` are discarded", "in to PT at 2017-10-10 23:45:00 from UTC", `US/Pacific: 2017-10-10 16:45:00`},
+		testcase{
+			name:     "one tz and a timestamp and zone, converts second zone to first",
+			input:    "PT 2017-10-10 23:45:00 UTC",
+			expected: `US/Pacific: 2017-10-10 16:45:00`,
+		},
+		testcase{
+			name:     "`at in from to` are discarded",
+			input:    "in to PT at 2017-10-10 23:45:00 from UTC",
+			expected: `US/Pacific: 2017-10-10 16:45:00`,
+		},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
