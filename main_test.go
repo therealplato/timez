@@ -37,7 +37,11 @@ UTC: 2017-10-10 10:01:30`,
 Pacific/Auckland: 2017-10-10 23:01:30
 UTC: 2017-10-10 10:01:30`,
 		},
-		testcase{"one tz and a timestamp without zone, outputs  that local time converted to that zone", "PT 2017-10-10 23:45:00", `US/Pacific: 2017-10-10 03:45:00`},
+		testcase{"one tz and a timestamp without zone, outputs that local time converted to that zone", "PT 2017-10-10 23:45:00", `US/Pacific: 2017-10-10 03:45:00`},
+		testcase{"multiple tz and a timestamp without zone, outputs local time converted to those zones", "PT ET 2017-10-10 23:45:00", `US/Pacific: 2017-10-10 03:45:00
+US/Eastern: 2017-10-10 06:45:00`},
+		testcase{"one tz and a timestamp and zone, converts second zone to first", "PT 2017-10-10 23:45:00 UTC", `US/Pacific: 2017-10-10 16:45:00`},
+		testcase{"`at in from to` are discarded", "in to PT at 2017-10-10 23:45:00 from UTC", `US/Pacific: 2017-10-10 16:45:00`},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
