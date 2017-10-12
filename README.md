@@ -27,6 +27,9 @@ Feel free to PR new entries to these lists, what I've got so far is specific to 
 
 ## Examples:
 ```
+# Set a default local tz if you want:
+$ echo "Pacific/Auckland" > ~/.timezrc
+
 # output current local and current UTC:
 $ timez
 Pacific/Auckland: 2017-10-12 22:30:27
