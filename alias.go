@@ -13,4 +13,8 @@ var tzAlias = map[string]string{
 	"PT":       "US/Pacific",
 	"pt":       "US/Pacific",
 	"pacific":  "US/Pacific",
+	"Auckland": "Pacific/Auckland",
+	"auckland": "Pacific/Auckland",
+	"London":   "Europe/London",
+	"london":   "Europe/London",
 }

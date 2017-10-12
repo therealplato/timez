@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -49,6 +50,7 @@ func timez(c clocker, z zoner, args []string) string {
 		s := t0.In(tz).Format("2006-01-02 15:04:05")
 		output += fmt.Sprintf("%s: %s\n", tz.String(), s)
 	}
+	output = strings.TrimRight(output, "\n")
 	return output
 
 }
