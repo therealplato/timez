@@ -1,0 +1,8 @@
+# Copy me to ~/.timezrc (or %USERPROFILE%/.timezrc on windows)
+# if set, "default" will override your system clock, for queries where you don't specify timezones
+# 
+# All other keys configure aliases that timez will understand
+
+#default: Pacific/Auckland
+hiro: America/Los_Angeles
+nell: Asia/Shanghai

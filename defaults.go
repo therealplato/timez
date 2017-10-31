@@ -33,6 +33,4 @@ var tsFormats = []string{
 	time.RFC822Z,
 	time.RFC850,
 	time.ANSIC,
-	time.Kitchen,
-	"15:04",
 }
