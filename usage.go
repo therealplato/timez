@@ -1,4 +1,7 @@
 package main
 
-const usage = `timez <outputTZ...> <time> <inputTZ>
-You can set a default inputTZ in ~/.timezrc`
+const usage = `Usage:
+timez <outputTZ...> <time> <inputTZ>
+You can configure aliases in ~/.timezrc as yaml, e.g:
+hiro: America/Los_Angeles
+nell: Asia/Shanghai`

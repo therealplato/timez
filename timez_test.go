@@ -43,33 +43,33 @@ func TestTimez(t *testing.T) {
 UTC: 2017-10-10 10:01:30`},
 		testcase{
 			name:     "one tz outputs now in that tz",
-			args:     "PT",
+			args:     "US/Pacific",
 			expected: `US/Pacific: 2017-10-10 03:01:30`,
 		},
 		testcase{
 			name: "three tz outputs now in those tz",
-			args: "PT Pacific/Auckland UTC",
+			args: "US/Pacific Pacific/Auckland UTC",
 			expected: `US/Pacific: 2017-10-10 03:01:30
 Pacific/Auckland: 2017-10-10 23:01:30
 UTC: 2017-10-10 10:01:30`},
 		testcase{
 			name:     "one tz and a timestamp without zone, outputs that local time converted to that zone",
-			args:     "PT 2017-10-10 23:45:00",
+			args:     "US/Pacific 2017-10-10 23:45:00",
 			expected: `US/Pacific: 2017-10-10 03:45:00`,
 		},
 		testcase{
 			name: "multiple tz and a timestamp without zone, outputs local time converted to those zones",
-			args: "PT ET 2017-10-10 23:45:00",
+			args: "US/Pacific US/Eastern 2017-10-10 23:45:00",
 			expected: `US/Pacific: 2017-10-10 03:45:00
 US/Eastern: 2017-10-10 06:45:00`},
 		testcase{
 			name:     "one tz and a timestamp and zone, converts second zone to first",
-			args:     "PT 2017-10-10 23:45:00 UTC",
+			args:     "US/Pacific 2017-10-10 23:45:00 UTC",
 			expected: `US/Pacific: 2017-10-10 16:45:00`,
 		},
 		testcase{
 			name:     "`at in from to` are discarded",
-			args:     "in to PT at 2017-10-10 23:45:00 from UTC",
+			args:     "in to US/Pacific at 2017-10-10 23:45:00 from UTC",
 			expected: `US/Pacific: 2017-10-10 16:45:00`,
 		},
 		testcase{
@@ -83,7 +83,7 @@ UTC: 2017-10-10 10:01:30`,
 			name:     "respects configured `custom` alias",
 			args:     "custom",
 			cfg:      &config{localTZ: z1, aliases: map[string]string{"custom": "Europe/London"}},
-			expected: `Europe/London: 2017-10-10 11:01:30`,
+			expected: `custom: 2017-10-10 11:01:30`,
 		},
 	}
 	for _, tc := range tcs {

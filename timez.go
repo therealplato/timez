@@ -12,7 +12,7 @@ func timez(cfg config, c clocker, args []string) string {
 	if err != nil {
 		if err == errNoArgs {
 			outputZones = append(outputZones, outputZone{
-				alias: "local",
+				alias: z0.String(),
 				loc:   z0,
 			}, outputZone{
 				alias: "UTC",
