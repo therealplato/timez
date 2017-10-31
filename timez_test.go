@@ -95,6 +95,7 @@ UTC: 2017-10-10 10:01:30`,
 			if tc.cfg == nil {
 				tc.cfg = &config{
 					localTZ: z0,
+					aliases: defaultAlias,
 				}
 			}
 			out := timez(*tc.cfg, c, args)

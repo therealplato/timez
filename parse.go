@@ -12,15 +12,19 @@ var (
 	zoneRX              = regexp.MustCompile(`^[a-zA-Z+\-]`)
 	fragRX              = regexp.MustCompile("^[0-9]")
 	errParsingTimestamp = errors.New("found numbers that did not match a known timestamp format")
+	errNoLocalTimezone  = errors.New("parse called without configuring a local timezone")
 )
 
-func parse(defaultZone *time.Location, args []string) (outputZones []*time.Location, t time.Time, err error) {
-	t = nullTime
+func parse(cfg config, args []string) (outputZones []*time.Location, t time.Time, err error) {
 	var (
 		inputZone *time.Location
 		tmpZone   *time.Location
 	)
-	inputZone = defaultZone
+	t = nullTime
+	inputZone = cfg.localTZ
+	if inputZone == nil {
+		return outputZones, t, errNoLocalTimezone
+	}
 	if len(args) == 0 {
 		return outputZones, t, errNoArgs
 	}
@@ -28,14 +32,14 @@ func parse(defaultZone *time.Location, args []string) (outputZones []*time.Locat
 	outputZoneStrings, timeFrags, inputZoneString := parseToStrings(args)
 
 	if inputZoneString != "" {
-		inputZone, err = parseZone(inputZoneString)
+		inputZone, err = parseZone(cfg, inputZoneString)
 		if err != nil {
 			return outputZones, t, err
 		}
 	}
 
 	for _, tzString := range outputZoneStrings {
-		tmpZone, err = parseZone(tzString)
+		tmpZone, err = parseZone(cfg, tzString)
 		if err != nil {
 			return outputZones, t, err
 		}
@@ -72,7 +76,7 @@ func parseToStrings(args []string) (outputZoneStrings []string, timeFrags []stri
 				continue
 			}
 			inputZoneString = arg
-			alias, ok := tzAlias[inputZoneString]
+			alias, ok := defaultAlias[inputZoneString]
 			if ok {
 				inputZoneString = alias
 			}
@@ -81,11 +85,11 @@ func parseToStrings(args []string) (outputZoneStrings []string, timeFrags []stri
 	return outputZoneStrings, timeFrags, inputZoneString
 }
 
-func parseZone(s string) (*time.Location, error) {
+func parseZone(cfg config, s string) (*time.Location, error) {
 	tmp, err := time.LoadLocation(s)
 	if err != nil {
 		// retry with alias:
-		alias, ok := tzAlias[s]
+		alias, ok := cfg.aliases[s]
 		if !ok {
 			return nil, fmt.Errorf("could not parse %s as timezone", s)
 		}

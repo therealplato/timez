@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -32,7 +31,7 @@ func mustLoadAliases(in io.Reader) map[string]string {
 	if err != nil {
 		log.Fatalf("couldn't unmarshal config: %s", err)
 	}
-	for k, v := range tzAlias {
+	for k, v := range defaultAlias {
 		_, exists := user[k]
 		if !exists {
 			user[k] = v
@@ -51,24 +50,6 @@ func userHomeDir() string {
 		env = "home"
 	}
 	return os.Getenv(env)
-}
-
-func tzFromRC() (*time.Location, error) {
-	dir := userHomeDir()
-	rc := filepath.Join(dir, ".timezrc")
-	bb, err := ioutil.ReadFile(rc)
-	if err != nil {
-		return nil, err
-	}
-	s := string(bb)
-	lines := strings.Split(s, "\n")
-	for _, l := range lines {
-		loc, err := parseZone(l)
-		if err == nil {
-			return loc, nil
-		}
-	}
-	return nil, errors.New("~/.timezrc had no parsable timezones")
 }
 
 func tzFromShell() (*time.Location, error) {

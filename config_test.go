@@ -15,7 +15,7 @@ thor: asgard
 `))
 
 	var x = make(map[string]string)
-	for k, v := range tzAlias {
+	for k, v := range defaultAlias {
 		x[k] = v
 	}
 	x["default"] = "Pacific/Auckland"

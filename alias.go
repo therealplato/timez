@@ -1,6 +1,6 @@
 package main
 
-var tzAlias = map[string]string{
+var defaultAlias = map[string]string{
 	"ET":       "US/Eastern",
 	"et":       "US/Eastern",
 	"eastern":  "US/Eastern",

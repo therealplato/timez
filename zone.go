@@ -21,7 +21,7 @@ func (z *zone) Zone() *time.Location {
 	)
 	d, ok := z.cfg.aliases["default"]
 	if ok {
-		loc, err := parseZone(d)
+		loc, err := parseZone(z.cfg, d)
 		if err == nil {
 			return loc
 		}

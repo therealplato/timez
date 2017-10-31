@@ -8,7 +8,7 @@ import (
 
 func timez(cfg config, c clocker, args []string) string {
 	z0 := cfg.localTZ
-	outputTZs, t0, err := parse(z0, args)
+	outputTZs, t0, err := parse(cfg, args)
 	if err != nil {
 		if err == errNoArgs {
 			outputTZs = append(outputTZs, z0, time.UTC)
