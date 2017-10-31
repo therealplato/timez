@@ -15,7 +15,12 @@ var (
 	errNoLocalTimezone  = errors.New("parse called without configuring a local timezone")
 )
 
-func parse(cfg config, args []string) (outputZones []*time.Location, t time.Time, err error) {
+type outputZone struct {
+	alias string
+	loc   *time.Location
+}
+
+func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, err error) {
 	var (
 		inputZone *time.Location
 		tmpZone   *time.Location
@@ -43,7 +48,10 @@ func parse(cfg config, args []string) (outputZones []*time.Location, t time.Time
 		if err != nil {
 			return outputZones, t, err
 		}
-		outputZones = append(outputZones, tmpZone)
+		outputZones = append(outputZones, outputZone{
+			alias: tzString,
+			loc:   tmpZone,
+		})
 	}
 
 	if len(timeFrags) > 0 {
