@@ -79,6 +79,12 @@ US/Eastern: 2017-10-10 06:45:00`},
 			expected: `Asia/Dubai: 2017-10-10 14:01:30
 UTC: 2017-10-10 10:01:30`,
 		},
+		testcase{
+			name:     "respects configured `custom` alias",
+			args:     "custom",
+			cfg:      &config{localTZ: z1, aliases: map[string]string{"custom": "Europe/London"}},
+			expected: `Europe/London: 2017-10-10 11:01:30`,
+		},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
