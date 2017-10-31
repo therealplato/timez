@@ -84,10 +84,6 @@ func parseToStrings(args []string) (outputZoneStrings []string, timeFrags []stri
 				continue
 			}
 			inputZoneString = arg
-			alias, ok := defaultAlias[inputZoneString]
-			if ok {
-				inputZoneString = alias
-			}
 		}
 	}
 	return outputZoneStrings, timeFrags, inputZoneString
