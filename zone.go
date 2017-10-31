@@ -19,12 +19,21 @@ type zoner interface {
 	Zone() *time.Location
 }
 
-type zone struct{}
+type zone struct {
+	cfg config
+}
 
 func (z *zone) Zone() *time.Location {
-	loc, err := tzFromRC()
-	if err == nil {
-		return loc
+	var (
+		loc *time.Location
+		err error
+	)
+	d, ok := z.cfg.aliases["default"]
+	if ok {
+		loc, err := parseZone(d)
+		if err == nil {
+			return loc
+		}
 	}
 	loc, err = tzFromShell()
 	if err == nil {

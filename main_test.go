@@ -76,7 +76,10 @@ US/Eastern: 2017-10-10 06:45:00`},
 			if len(args) == 1 && args[0] == "" {
 				args = nil
 			}
-			out := timez(c, z, args)
+			cfg := config{
+				localTZ: z0,
+			}
+			out := timez(cfg, c, args)
 			assert.Equal(t, tc.expected, out)
 		})
 	}

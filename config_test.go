@@ -26,10 +26,6 @@ thor: asgard
 	x["freya"] = "UTC"
 	x["thor"] = "asgard"
 
-	expectedConfig := config{
-		localTZ: time.UTC,
-		aliases: x,
-	}
-	actualConfig := mustLoadConfig(z, f)
-	assert.Equal(t, expectedConfig, actualConfig)
+	actual := mustLoadAliases(f)
+	assert.Equal(t, x, actual)
 }

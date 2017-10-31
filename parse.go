@@ -14,13 +14,13 @@ var (
 	errParsingTimestamp = errors.New("found numbers that did not match a known timestamp format")
 )
 
-func parse(z zoner, args []string) (outputZones []*time.Location, t time.Time, err error) {
+func parse(defaultZone *time.Location, args []string) (outputZones []*time.Location, t time.Time, err error) {
 	t = nullTime
 	var (
 		inputZone *time.Location
 		tmpZone   *time.Location
 	)
-	inputZone = z.Zone()
+	inputZone = defaultZone
 	if len(args) == 0 {
 		return outputZones, t, errNoArgs
 	}

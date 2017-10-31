@@ -14,7 +14,7 @@ type config struct {
 	aliases map[string]string
 }
 
-func mustLoadConfig(z zoner, in io.Reader) config {
+func mustLoadAliases(in io.Reader) map[string]string {
 	bb, err := ioutil.ReadAll(in)
 	if err != nil {
 		log.Fatalf("couldn't load config: %s", err)
@@ -31,8 +31,5 @@ func mustLoadConfig(z zoner, in io.Reader) config {
 		}
 	}
 
-	return config{
-		localTZ: z.Zone(),
-		aliases: a,
-	}
+	return a
 }
