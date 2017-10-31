@@ -11,7 +11,8 @@ import (
 
 type testcase struct {
 	name     string
-	input    string
+	args     string
+	cfg      *config
 	expected string
 }
 
@@ -19,6 +20,8 @@ func TestTimez(t *testing.T) {
 	t0, err := time.Parse("2006-01-02 15:04:05-0700", "2017-10-10 23:01:30+1300")
 	require.Nil(t, err)
 	z0, err := time.LoadLocation("Pacific/Auckland")
+	require.Nil(t, err)
+	z1, err := time.LoadLocation("Asia/Dubai")
 	require.Nil(t, err)
 
 	z := &mockZone{}
@@ -30,56 +33,65 @@ func TestTimez(t *testing.T) {
 	tcs := []testcase{
 		testcase{
 			name:     "junk input",
-			input:    "asdf",
+			args:     "asdf",
 			expected: usage,
 		},
 		testcase{
-			name:  "empty input outputs local and utc",
-			input: "",
+			name: "empty input outputs local and utc",
+			args: "",
 			expected: `Pacific/Auckland: 2017-10-10 23:01:30
 UTC: 2017-10-10 10:01:30`},
 		testcase{
 			name:     "one tz outputs now in that tz",
-			input:    "PT",
+			args:     "PT",
 			expected: `US/Pacific: 2017-10-10 03:01:30`,
 		},
 		testcase{
-			name:  "three tz outputs now in those tz",
-			input: "PT Pacific/Auckland UTC",
+			name: "three tz outputs now in those tz",
+			args: "PT Pacific/Auckland UTC",
 			expected: `US/Pacific: 2017-10-10 03:01:30
 Pacific/Auckland: 2017-10-10 23:01:30
 UTC: 2017-10-10 10:01:30`},
 		testcase{
 			name:     "one tz and a timestamp without zone, outputs that local time converted to that zone",
-			input:    "PT 2017-10-10 23:45:00",
+			args:     "PT 2017-10-10 23:45:00",
 			expected: `US/Pacific: 2017-10-10 03:45:00`,
 		},
 		testcase{
-			name:  "multiple tz and a timestamp without zone, outputs local time converted to those zones",
-			input: "PT ET 2017-10-10 23:45:00",
+			name: "multiple tz and a timestamp without zone, outputs local time converted to those zones",
+			args: "PT ET 2017-10-10 23:45:00",
 			expected: `US/Pacific: 2017-10-10 03:45:00
 US/Eastern: 2017-10-10 06:45:00`},
 		testcase{
 			name:     "one tz and a timestamp and zone, converts second zone to first",
-			input:    "PT 2017-10-10 23:45:00 UTC",
+			args:     "PT 2017-10-10 23:45:00 UTC",
 			expected: `US/Pacific: 2017-10-10 16:45:00`,
 		},
 		testcase{
 			name:     "`at in from to` are discarded",
-			input:    "in to PT at 2017-10-10 23:45:00 from UTC",
+			args:     "in to PT at 2017-10-10 23:45:00 from UTC",
 			expected: `US/Pacific: 2017-10-10 16:45:00`,
+		},
+		testcase{
+			name: "respects configured `default` alias",
+			args: "",
+			cfg:  &config{localTZ: z1},
+			expected: `Asia/Dubai: 2017-10-10 14:01:30
+UTC: 2017-10-10 10:01:30`,
 		},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			args := strings.Split(tc.input, " ")
+			args := strings.Split(tc.args, " ")
 			if len(args) == 1 && args[0] == "" {
 				args = nil
 			}
-			cfg := config{
-				localTZ: z0,
+			if tc.cfg == nil {
+				tc.cfg = &config{
+					localTZ: z0,
+				}
 			}
-			out := timez(cfg, c, args)
+			out := timez(*tc.cfg, c, args)
 			assert.Equal(t, tc.expected, out)
 		})
 	}
