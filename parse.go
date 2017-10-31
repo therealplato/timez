@@ -20,7 +20,7 @@ type outputZone struct {
 	loc   *time.Location
 }
 
-func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, err error) {
+func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, matchedTimestampFormat string, err error) {
 	var (
 		inputZone *time.Location
 		tmpZone   *time.Location
@@ -28,10 +28,10 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, er
 	t = nullTime
 	inputZone = cfg.localTZ
 	if inputZone == nil {
-		return outputZones, t, errNoLocalTimezone
+		return outputZones, t, "", errNoLocalTimezone
 	}
 	if len(args) == 0 {
-		return outputZones, t, errNoArgs
+		return outputZones, t, "", errNoArgs
 	}
 
 	outputZoneStrings, timeFrags, inputZoneString := parseToStrings(args)
@@ -39,14 +39,14 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, er
 	if inputZoneString != "" {
 		inputZone, err = parseZone(cfg, inputZoneString)
 		if err != nil {
-			return outputZones, t, err
+			return outputZones, t, "", err
 		}
 	}
 
 	for _, tzString := range outputZoneStrings {
 		tmpZone, err = parseZone(cfg, tzString)
 		if err != nil {
-			return outputZones, t, err
+			return outputZones, t, "", err
 		}
 		outputZones = append(outputZones, outputZone{
 			alias: tzString,
@@ -56,15 +56,15 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, er
 
 	if len(timeFrags) > 0 {
 		timeString := strings.Join(timeFrags, " ")
-		for _, f := range tsFormats {
-			t, err = time.ParseInLocation(f, timeString, inputZone)
+		for _, matchedTimestampFormat = range tsFormats {
+			t, err = time.ParseInLocation(matchedTimestampFormat, timeString, inputZone)
 			if err == nil {
 				break
 			}
 		}
 	}
 
-	return outputZones, t, err
+	return outputZones, t, matchedTimestampFormat, err
 }
 
 func parseToStrings(args []string) (outputZoneStrings []string, timeFrags []string, inputZoneString string) {

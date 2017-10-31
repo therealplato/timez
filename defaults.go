@@ -22,8 +22,9 @@ var defaultAlias = map[string]string{
 }
 
 var tsFormats = []string{
-	"2006-01-02 15:04:05",
 	"2006-01-02 15:04:05 -0700",
+	"2006-01-02 15:04:05",
+	"2006-01-02",
 	time.RFC1123,
 	time.RFC1123Z,
 	time.RFC3339,
@@ -32,4 +33,6 @@ var tsFormats = []string{
 	time.RFC822Z,
 	time.RFC850,
 	time.ANSIC,
+	time.Kitchen,
+	"15:04",
 }

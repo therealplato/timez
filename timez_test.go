@@ -40,7 +40,13 @@ func TestTimez(t *testing.T) {
 			name: "empty input outputs local and utc",
 			args: "",
 			expected: `Pacific/Auckland: 2017-10-10 23:01:30
-UTC: 2017-10-10 10:01:30`},
+UTC: 2017-10-10 10:01:30`,
+		},
+		testcase{
+			name:     "no output zone assumes local",
+			args:     "2017-10-10 10:59:00 UTC",
+			expected: `Pacific/Auckland: 2017-10-10 23:59:00`,
+		},
 		testcase{
 			name:     "one tz outputs now in that tz",
 			args:     "US/Pacific",
