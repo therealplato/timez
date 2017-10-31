@@ -2,6 +2,7 @@
 # if set, "default" will override your system clock, for queries where you don't specify timezones
 # 
 # All other keys configure aliases that timez will understand
+# yaml requires a space after the colon, e.g. `foo:UTC` is invalid
 
 #default: Pacific/Auckland
 hiro: America/Los_Angeles
