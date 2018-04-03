@@ -7,17 +7,10 @@ import (
 )
 
 func timez(cfg config, c clocker, args []string) string {
-	z0 := cfg.localTZ
+	// z0 := cfg.localTZ
 	outputZones, t0, tsFmt, err := parse(cfg, args)
 	if err != nil {
 		if err == errNoArgs {
-			outputZones = append(outputZones, outputZone{
-				alias: z0.String(),
-				loc:   z0,
-			}, outputZone{
-				alias: "UTC",
-				loc:   time.UTC,
-			})
 			t0 = c.Now()
 		} else {
 			fmt.Println(err)
@@ -32,9 +25,13 @@ func timez(cfg config, c clocker, args []string) string {
 	}
 	output := ""
 	if len(outputZones) == 0 {
+		// outputZones = append(outputZones, outputZone{
+		// 	alias: z0.String(),
+		// 	loc:   z0,
+		// })
 		outputZones = append(outputZones, outputZone{
-			alias: z0.String(),
-			loc:   z0,
+			alias: "UTC",
+			loc:   time.UTC,
 		})
 	}
 	for _, outputZone := range outputZones {
