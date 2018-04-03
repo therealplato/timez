@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -17,6 +18,9 @@ type testcase struct {
 }
 
 func TestTimez(t *testing.T) {
+
+	// 1522741510
+
 	t0, err := time.Parse("2006-01-02 15:04:05-0700", "2017-10-10 23:01:30+1300")
 	require.Nil(t, err)
 	z0, err := time.LoadLocation("Pacific/Auckland")
@@ -91,6 +95,25 @@ UTC: 2017-10-10 10:01:30`,
 			cfg:      &config{localTZ: z1, aliases: map[string]string{"custom": "Europe/London"}},
 			expected: `custom: 2017-10-10 11:01:30`,
 		},
+		testcase{
+			cfg: &config{
+				localTZ: z1,
+			},
+			name: "transforms Unix to default",
+			args: "1522741510",
+			expected: `Asia/Dubai: 2018-04-03 11:45:10 
+UTC: 2018-04-03 07:45:10`,
+		},
+		{
+			name:     "transforms Unix to UTC",
+			args:     "UTC 1522741510",
+			expected: `UTC: 2018-04-03 07:45:10`,
+		},
+		testcase{
+			name:     "one tz outputs now in that tz",
+			args:     "US/Pacific",
+			expected: `US/Pacific: 2017-10-10 03:01:30`,
+		},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
@@ -105,7 +128,7 @@ UTC: 2017-10-10 10:01:30`,
 				}
 			}
 			out := timez(*tc.cfg, c, args)
-			assert.Equal(t, tc.expected, out)
+			assert.Equal(t, tc.expected, out, fmt.Sprintf("input: %s", tc.args))
 		})
 	}
 }

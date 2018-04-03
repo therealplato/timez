@@ -3,7 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -11,6 +13,8 @@ import (
 var (
 	zoneRX              = regexp.MustCompile(`^[a-zA-Z+\-]`)
 	fragRX              = regexp.MustCompile("^[0-9]")
+	UnixSRegex          = regexp.MustCompile("^[0-9]{9,11}$")
+	UnixNSRegex         = regexp.MustCompile("^[0-9]{12,14}$")
 	errParsingTimestamp = errors.New("found numbers that did not match a known timestamp format")
 	errNoLocalTimezone  = errors.New("parse called without configuring a local timezone")
 )
@@ -20,10 +24,13 @@ type outputZone struct {
 	loc   *time.Location
 }
 
+// func parse(cfg config, args []string) ([]outputZone, time.Time, string, error) {
 func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, matchedTimestampFormat string, err error) {
 	var (
-		inputZone *time.Location
-		tmpZone   *time.Location
+		inputZone        *time.Location
+		tmpZone          *time.Location
+		i                int
+		isUnix, isUnixNS bool
 	)
 	t = nullTime
 	inputZone = cfg.localTZ
@@ -35,6 +42,28 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, ma
 	}
 
 	outputZoneStrings, timeFrags, inputZoneString := parseToStrings(args)
+
+	if len(timeFrags) > 0 {
+		isUnix = UnixSRegex.MatchString(timeFrags[0])
+		isUnixNS = UnixNSRegex.MatchString(timeFrags[0])
+	}
+	if isUnix || isUnixNS {
+		i, err = strconv.Atoi(timeFrags[0])
+		if err != nil {
+			return outputZones, t, "", err
+		}
+		timeFrags = nil
+		outputZoneStrings = ensureUTC(outputZoneStrings)
+	}
+	if isUnix {
+		t = time.Unix(int64(i), 0)
+	}
+	if isUnixNS {
+		t = time.Unix(0, int64(i))
+	}
+	if (isUnix || isUnixNS) && len(inputZoneString) > 0 {
+		fmt.Fprintln(os.Stderr, "ignoring input zone; Unix time is UTC")
+	}
 
 	if inputZoneString != "" {
 		inputZone, err = parseZone(cfg, inputZoneString)
@@ -67,16 +96,24 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, ma
 	return outputZones, t, matchedTimestampFormat, err
 }
 
+// take CLI inputs and split them up into output zones, space separated bits of time, and one input zone
 func parseToStrings(args []string) (outputZoneStrings []string, timeFrags []string, inputZoneString string) {
 	for _, arg := range args {
 		if arg == "at" || arg == "in" || arg == "from" || arg == "to" {
 			continue
 		}
+		isUnix := UnixSRegex.MatchString(arg) || UnixNSRegex.MatchString(arg)
+		if isUnix {
+			timeFrags = append(timeFrags, arg)
+			continue
+		}
+
 		isFrag := fragRX.MatchString(arg)
 		if isFrag {
 			timeFrags = append(timeFrags, arg)
 			continue
 		}
+
 		isZone := zoneRX.MatchString(arg)
 		if isZone {
 			if len(timeFrags) == 0 {
@@ -100,4 +137,14 @@ func parseZone(cfg config, s string) (*time.Location, error) {
 		tmp, err = time.LoadLocation(alias)
 	}
 	return tmp, err
+}
+
+func ensureUTC(ss []string) []string {
+	for _, s := range ss {
+		if strings.ToLower(s) == "utc" {
+			return ss
+		}
+	}
+	ss = append(ss, "UTC")
+	return ss
 }
