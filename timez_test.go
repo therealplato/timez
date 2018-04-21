@@ -41,15 +41,20 @@ func TestTimez(t *testing.T) {
 			expected: usage,
 		},
 		testcase{
-			name: "empty input outputs local and utc",
-			args: "",
-			expected: `Pacific/Auckland: 2017-10-10 23:01:30
-UTC: 2017-10-10 10:01:30`,
+			name:     "empty input outputs local and utc",
+			args:     "",
+			expected: `UTC: 2017-10-10 10:01:30`,
 		},
+		// Old behavior: Specifying an input timezone and no output timezone, outputs local
+		// testcase{
+		// 	name:     "no output zone assumes local",
+		// 	args:     "2017-10-10 10:59:00 UTC",
+		// 	expected: `Pacific/Auckland: 2017-10-10 23:59:00`,
+		// },
 		testcase{
 			name:     "no output zone assumes local",
 			args:     "2017-10-10 10:59:00 UTC",
-			expected: `Pacific/Auckland: 2017-10-10 23:59:00`,
+			expected: `UTC: 2017-10-10 10:59:00`,
 		},
 		testcase{
 			name:     "one tz outputs now in that tz",
@@ -82,13 +87,13 @@ US/Eastern: 2017-10-10 06:45:00`},
 			args:     "in to US/Pacific at 2017-10-10 23:45:00 from UTC",
 			expected: `US/Pacific: 2017-10-10 16:45:00`,
 		},
-		testcase{
-			name: "respects configured `default` alias",
-			args: "",
-			cfg:  &config{localTZ: z1},
-			expected: `Asia/Dubai: 2017-10-10 14:01:30
-UTC: 2017-10-10 10:01:30`,
-		},
+		// 		testcase{
+		// 			name: "respects configured `default` alias",
+		// 			args: "",
+		// 			cfg:  &config{localTZ: z1},
+		// 			expected: `Asia/Dubai: 2017-10-10 14:01:30
+		// UTC: 2017-10-10 10:01:30`,
+		// 		},
 		testcase{
 			name:     "respects configured `custom` alias",
 			args:     "custom",
@@ -99,12 +104,11 @@ UTC: 2017-10-10 10:01:30`,
 			cfg: &config{
 				localTZ: z1,
 			},
-			name: "transforms Unix to default",
-			args: "1522741510",
-			expected: `Asia/Dubai: 2018-04-03 11:45:10 
-UTC: 2018-04-03 07:45:10`,
+			name:     "transforms Unix to default",
+			args:     "1522741510",
+			expected: `UTC: 2018-04-03 07:45:10`,
 		},
-		{
+		testcase{
 			name:     "transforms Unix to UTC",
 			args:     "UTC 1522741510",
 			expected: `UTC: 2018-04-03 07:45:10`,
