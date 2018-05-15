@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -17,10 +18,18 @@ var nullTime = time.Time{}
 
 func main() {
 	var (
-		a   map[string]string
-		c   = &clock{}
-		cfg config
+		help bool
+		a    map[string]string
+		c    = &clock{}
+		cfg  config
 	)
+	flag.BoolVar(&help, "help", false, "--help")
+	flag.Parse()
+	if help {
+		fmt.Println(usage)
+		os.Exit(0)
+	}
+
 	f, err := os.Open(filepath.Join(userHomeDir(), ".timezrc"))
 	if err != nil {
 		a = mustLoadAliases(bytes.NewBuffer(nil))

@@ -99,12 +99,13 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, ma
 	}
 
 	if len(outputZones) == 0 && inputZone == time.UTC {
-		s := fmt.Sprintf("converting UTC -> UTC\n  did you mean to convert local to UTC? `%s UTC", os.Args[0])
+		var s, t string
 		for _, frag := range timeFrags {
-			s += " "
-			s += frag
+			t += frag
+			t += " "
 		}
-		s += "`\n"
+		t = strings.TrimSpace(t)
+		s = fmt.Sprintf("converting UTC -> UTC, did you mean to convert local to UTC? `timez UTC %s US/Eastern`\n", t)
 		fmt.Fprintf(os.Stderr, s)
 	}
 
