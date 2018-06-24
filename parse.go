@@ -74,7 +74,8 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, ma
 			// ms = int64(i) - s
 			ms = int64(i) / s
 			ns = 1E6 * (ms)
-			fmt.Printf(" i: %v\n s: %v\nms: %v\nns: %v\n", i, s, ms, ns)
+
+			// fmt.Printf(" i: %v\n s: %v\nms: %v\nns: %v\n", i, s, ms, ns)
 			t = time.Unix(s, ns)
 		}
 		if UnixNSRegex.MatchString(timeFrags[0]) {
