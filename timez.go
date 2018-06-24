@@ -7,8 +7,8 @@ import (
 )
 
 func timez(cfg config, c clocker, args []string) string {
-	// z0 := cfg.localTZ
 	outputZones, t0, tsFmt, err := parse(cfg, args)
+	// fmt.Printf("out: %s\ntime: %s\nfmt: %serr: %s\n", outputZones, t0, tsFmt, err)
 	if err != nil {
 		if err == errNoArgs {
 			t0 = c.Now()
@@ -25,16 +25,15 @@ func timez(cfg config, c clocker, args []string) string {
 	}
 	output := ""
 	if len(outputZones) == 0 {
-		// outputZones = append(outputZones, outputZone{
-		// 	alias: z0.String(),
-		// 	loc:   z0,
-		// })
 		outputZones = append(outputZones, outputZone{
 			alias: "UTC",
 			loc:   time.UTC,
 		})
 	}
 	for _, outputZone := range outputZones {
+		if outputZone.isUnix {
+			return fmt.Sprintf("%d", t0.Unix())
+		}
 		s := t0.In(outputZone.loc).Format(tsFmt)
 		output += fmt.Sprintf("%s: %s\n", outputZone.alias, s)
 	}

@@ -13,7 +13,8 @@ import (
 var (
 	zoneRX              = regexp.MustCompile(`^[a-zA-Z+\-]`)
 	fragRX              = regexp.MustCompile("^[0-9]")
-	UnixRegex           = regexp.MustCompile("^[0-9]{9,20}$")
+	UnixLiteralRegex    = regexp.MustCompile("(?i)unix")
+	UnixIntegerRegex    = regexp.MustCompile("^[0-9]{9,20}$")
 	UnixSRegex          = regexp.MustCompile("^[0-9]{9,11}$")
 	UnixMSRegex         = regexp.MustCompile("^[0-9]{12,14}$")
 	UnixNSRegex         = regexp.MustCompile("^[0-9]{18,20}$")
@@ -22,17 +23,17 @@ var (
 )
 
 type outputZone struct {
-	alias string
-	loc   *time.Location
+	alias  string
+	loc    *time.Location
+	isUnix bool
 }
 
-// func parse(cfg config, args []string) ([]outputZone, time.Time, string, error) {
 func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, matchedTimestampFormat string, err error) {
 	var (
-		inputZone *time.Location
-		tmpZone   *time.Location
-		i         int
-		isUnix    bool
+		inputZone     *time.Location
+		tmpZone       *time.Location
+		i             int
+		isUnixInteger bool
 	)
 	t = nullTime
 	inputZone = cfg.localTZ
@@ -45,8 +46,10 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, ma
 
 	outputZoneStrings, timeFrags, inputZoneString := parseToStrings(args)
 
-	isUnix = len(timeFrags) > 0 && UnixRegex.MatchString(timeFrags[0])
-	if isUnix {
+	// fmt.Printf("out: %s\nin: %s\ntime: %s\n", outputZoneStrings, inputZoneString, timeFrags)
+
+	isUnixInteger = len(timeFrags) > 0 && UnixIntegerRegex.MatchString(timeFrags[0])
+	if isUnixInteger {
 		i, err = strconv.Atoi(timeFrags[0])
 		if err != nil {
 			return outputZones, t, "", err
@@ -90,6 +93,16 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, ma
 	for _, tzString := range outputZoneStrings {
 		tmpZone, err = parseZone(cfg, tzString)
 		if err != nil {
+			if err == errIsUnixZone {
+				outputZones = append(outputZones, outputZone{
+					alias:  tzString,
+					loc:    nil,
+					isUnix: true,
+				})
+				t = time.Now()
+				err = nil
+				continue
+			}
 			return outputZones, t, "", err
 		}
 		outputZones = append(outputZones, outputZone{
@@ -99,14 +112,14 @@ func parse(cfg config, args []string) (outputZones []outputZone, t time.Time, ma
 	}
 
 	if len(outputZones) == 0 && inputZone == time.UTC {
-		var s, t string
+		var p, q string
 		for _, frag := range timeFrags {
-			t += frag
-			t += " "
+			q += frag
+			q += " "
 		}
-		t = strings.TrimSpace(t)
-		s = fmt.Sprintf("converting UTC -> UTC, did you mean to convert local to UTC? `timez UTC %s US/Eastern`\n", t)
-		fmt.Fprintf(os.Stderr, s)
+		q = strings.TrimSpace(q)
+		p = fmt.Sprintf("converting UTC -> UTC, did you mean to convert local to UTC? `timez UTC %s US/Eastern`\n", q)
+		fmt.Fprintf(os.Stderr, p)
 	}
 
 	if len(timeFrags) > 0 {
@@ -129,7 +142,7 @@ func parseToStrings(args []string) (outputZoneStrings []string, timeFrags []stri
 			continue
 		}
 
-		if UnixRegex.MatchString(arg) {
+		if UnixIntegerRegex.MatchString(arg) {
 			timeFrags = append(timeFrags, arg)
 			continue
 		}
@@ -152,8 +165,13 @@ func parseToStrings(args []string) (outputZoneStrings []string, timeFrags []stri
 	return outputZoneStrings, timeFrags, inputZoneString
 }
 
+var errIsUnixZone = errors.New("'Unix' time zone is UTC")
+
 func parseZone(cfg config, s string) (*time.Location, error) {
 	tmp, err := time.LoadLocation(s)
+	if UnixLiteralRegex.MatchString(s) {
+		return nil, errIsUnixZone
+	}
 	if err != nil {
 		// retry with alias:
 		alias, ok := cfg.aliases[s]
